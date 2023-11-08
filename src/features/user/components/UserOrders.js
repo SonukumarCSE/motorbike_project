@@ -1,6 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchLoggedInUserOrderAsync, selectUserInfo, selectUserOrders } from '../userSlice';
+import {
+    fetchLoggedInUserOrderAsync,
+    selectUserInfo,
+    selectUserOrders,
+  } from '../userSlice';
+  import { discountedPrice } from '../../../app/constants';
 
 export default function UserOrders() {
     const dispatch = useDispatch();
@@ -9,8 +14,8 @@ export default function UserOrders() {
 
     useEffect(() => {
         dispatch(fetchLoggedInUserOrderAsync(user.id));
-    }, [dispatch, user.id]);
-
+    }, [dispatch, user]);
+    
     return (
         <div>
             {orders.map((order) => (
@@ -24,7 +29,7 @@ export default function UserOrders() {
                                 Order Status: {order.status}
                             </h3>
                             <div className="flow-root">
-                                <ul role="list" className="-my-6 divide-y divide-gray-200">
+                            <ul className="-my-6 divide-y divide-gray-200">
                                     {order.items.map((item) => (
                                         <li key={item.id}>
                                             <div className="flex py-6">
@@ -40,7 +45,7 @@ export default function UserOrders() {
                                                         <h3>
                                                             <a href={item.href}>{item.title}</a>
                                                         </h3>
-                                                        <p className="ml-4">${item.price}</p>
+                                                        <p className="ml-4">${discountedPrice(item)}</p>
                                                     </div>
                                                     <p className="mt-1 text-sm text-gray-500">{item.brand}</p>
                                                     <div className="flex flex-1 items-end justify-between text-sm">

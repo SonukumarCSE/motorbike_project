@@ -2,13 +2,11 @@ import { useState, useEffect } from 'react';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { RadioGroup } from '@headlessui/react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductByIdAsync, selectProductById, selectProductListStatus } from '../productSlice';
+import { fetchProductByIdAsync, selectProductById } from '../../product/productSlice';
 import { useParams } from 'react-router-dom';
-import { addToCartAsync, selectItems } from '../../cart/cartSlice';
+import { addToCartAsync } from '../../cart/cartSlice';
 import { selectLoggedInUser } from '../../auth/authSlice';
 import { discountedPrice } from '../../../app/constants';
-import { useAlert } from 'react-alert';
-import { Grid } from 'react-loader-spinner';
 
 // TODO: In server data we will add colors, sizes , highlights. to each product
 
@@ -39,36 +37,21 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-// TODO : Loading UI  
+// TODO : Loading UI
 
-export default function ProductDetail() {
+export default function AdminProductDetail() {
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedSize, setSelectedSize] = useState(sizes[2]);
   const user = useSelector(selectLoggedInUser);
-  const items = useSelector(selectItems);
   const product = useSelector(selectProductById);
   const dispatch = useDispatch();
   const params = useParams();
-  const alert = useAlert();
-  const status = useSelector(selectProductListStatus);
 
   const handleCart = (e) => {
     e.preventDefault();
-    if (items.findIndex((item) => item.productId === product.id) < 0) {
-      console.log({ items, product });
-      const newItem = {
-        ...product,
-        productId: product.id,
-        quantity: 1,
-        user: user.id,
-      };
-      delete newItem['id'];
-      dispatch(addToCartAsync(newItem));
-      // TODO: it will be based on server response of backend
-      alert.error('Item added to Cart');
-    } else {
-      alert.error('Item Already added');
-    }
+    const newItem = { ...product, quantity: 1, user: user.id };
+    delete newItem['id'];
+    dispatch(addToCartAsync(newItem));
   };
 
   useEffect(() => {
@@ -77,22 +60,12 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-white">
-    {status === 'loading' ? (
-        <Grid
-          height="80"
-          width="80"
-          color="rgb(79, 70, 229) "
-          ariaLabel="grid-loading"
-          radius="12.5"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-      ) : null}
       {product && (
         <div className="pt-6">
           <nav aria-label="Breadcrumb">
-          <ol className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+            <ol
+              className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
+            >
               {product.breadcrumbs &&
                 product.breadcrumbs.map((breadcrumb) => (
                   <li key={breadcrumb.id}>
@@ -125,11 +98,11 @@ export default function ProductDetail() {
                   {product.title}
                 </a>
               </li>
-              </ol>
+            </ol>
           </nav>
 
-        {/* Image gallery */}
-        <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
+          {/* Image gallery */}
+          <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
             <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
               <img
                 src={product.images[0]}
@@ -161,8 +134,8 @@ export default function ProductDetail() {
               />
             </div>
           </div>
-          
-                  {/* Product info */}
+
+          {/* Product info */}
           <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
             <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
               <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
@@ -180,7 +153,7 @@ export default function ProductDetail() {
                 ${discountedPrice(product)}
               </p>
               
-                {/* Reviews */}
+              {/* Reviews */}
               <div className="mt-6">
                 <h3 className="sr-only">Reviews</h3>
                 <div className="flex items-center">
@@ -238,25 +211,25 @@ export default function ProductDetail() {
                               color.class,
                               'h-8 w-8 rounded-full border border-black border-opacity-10'
                             )}
-                            />
-                            </RadioGroup.Option>
-                          ))}
-                        </div>
-                      </RadioGroup>
+                          />
+                        </RadioGroup.Option>
+                      ))}
                     </div>
-    
-                    {/* Sizes */}
-                    <div className="mt-10">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                        <a
-                          href="#"
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                          Size guide
-                        </a>
+                  </RadioGroup>
+                </div>
+
+                {/* Sizes */}
+                <div className="mt-10">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium text-gray-900">Size</h3>
+                    <a
+                      href="#"
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      Size guide
+                    </a>
                   </div>
-                
+
                   <RadioGroup
                     value={selectedSize}
                     onChange={setSelectedSize}
@@ -346,9 +319,9 @@ export default function ProductDetail() {
                     {product.description}
                   </p>
                 </div>
-            </div>
+              </div>
 
-            <div className="mt-10">
+              <div className="mt-10">
                 <h3 className="text-sm font-medium text-gray-900">
                   Highlights
                 </h3>
@@ -370,11 +343,11 @@ export default function ProductDetail() {
                 <div className="mt-4 space-y-6">
                   <p className="text-sm text-gray-600">{product.description}</p>
                 </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       )}
-      </div>
+    </div>
   );
 }
